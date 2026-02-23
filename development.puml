@@ -1,0 +1,50 @@
+@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+' ========== Componentes ===========
+component "User"
+
+' ----- Presentación ------
+package "capa de presentación" as presentation{
+  component "User interface" as UI 
+}
+
+' ----- API ------- 
+package "capa API" as apiLayer {
+  component "cloud-api" as api
+}
+
+' ----- Lógica de negocio -----
+package "capa lógica de negocio" as businessLayer {
+  component "cloud-server" as server
+  component "cloud-engine" as engine 
+  component "cloud-core" as core 
+}
+
+' ----- Integración ------
+package "capa de integración" as integration {
+  component "Plugins"
+}
+
+' ----- Datos -----
+package "capa de datos" as data {
+  component "framework"
+}
+
+' ========= Relaciones en capas ==========
+' user
+User ..> UI: <<use>>
+
+' ui 
+UI ..> api: <<import>>
+
+' server 
+server ..> api: <<import>>
+server ..> core: <<import>>
+server ..> engine: <<import>>
+server ..> Plugins: <<import>>
+server ..> framework: <<import>>
+
+' engine 
+engine ..> framework: <<import>>
+@enduml
