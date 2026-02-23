@@ -1,0 +1,72 @@
+@startuml
+' Esto hace que el diagrama se dibuje de izquierda a derecha automáticamente
+left to right direction
+
+' ============= Componentes ==============
+node "Client" <<device>> {
+    node "Browser / API" <<execution environment>> as browser {
+        
+    }
+}
+
+package "Region" {
+    package "Zone" {
+        ' Centro de control de Hosts
+        node "Management Server" <<device>> as Server {
+            node "Java" <<execution environment>> {
+                artifact "cloud-management-server" as cloudmanag
+                artifact "cloud-client-ui" as cloudclient
+            }
+        }
+        ' Controlador de la db 
+        node "Database Server" <<device>> as DB {
+            node "MySQL / MariaDB" <<execution environment>> {
+                artifact "cloud" <<database>>
+                artifact "cloud_usage" <<database>>
+            }
+        }
+        ' Almacenamiento estático 
+        node "Secondary Storage" <<device>> as secstorage {
+            artifact "Templates"
+        }
+
+        package "Pod" {
+            package "Cluster" {
+                ' Máquina virtual
+                node "Host" <<device>> as Host{
+                    node "Hypervisor" <<execution environment>> {
+                        artifact "cloud_agent"
+                    }
+                }
+                ' Almacenamiento dinámico
+                node "Primary Storage" <<device>> as pristorage {
+                    artifact "Virtual disks"
+                }
+            }
+        }
+    }
+}
+
+' ============ Relaciones ===============
+Client "*" -- Server: HTTPS Request (443/8080)
+Server -- DB: TCP (3306)
+Server -- secstorage: NFS
+Server -- "*" Host: TCP / SSH (8250)
+Host "*" -- "*" pristorage: iSCSI / NFS
+
+
+'=========== Notas =============
+note bottom of cloud_agent 
+    Servicio para dar instrucciones a la máquina,
+    a excepción de VMWare que usa vCenter API
+end note
+
+note left of pristorage
+    Almacenamiento de "alto rendimiento" para VMs en ejecución
+end note
+
+note left of secstorage
+    Almacenamiento de "gran capacidad" para datos estáticos
+end note
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+' El Cliente está FUERA del centro de datos
+node "<<device>>\nOrdenador del Cliente" as client {
+  node "<<execution environment>>\nNavegador Web / API Client" {
+  }
+}
+
+' Definición de la estructura física del Centro de Datos
+package "Zone (Centro de Datos Madrid)" {
+  
+  node "<<device>>\nManagement Server" as mgt {
+    node "<<execution environment>>\nTomcat Server" {
+       artifact "cloud-management.war"
+    }
+  }
+
+  node "<<device>>\nDatabase Server" as db {
+    node "<<execution environment>>\nMySQL" {
+       artifact "cloud_db"
+    }
+  }
+
+  package "Pod 1 (Rack A)" {
+    package "Cluster 1" {
+      
+      node "<<device>>\nHost Server" as host {
+        node "<<execution environment>>\nKVM Hypervisor" {
+          artifact "cloud-agent"
+        }
+      }
+      
+      node "<<device>>\nPrimary Storage" as primary {
+        artifact "Virtual Disks"
+      }
+    }
+  }
+
+  node "<<device>>\nSecondary Storage" as sec {
+    artifact "ISOs & Snapshots"
+  }
+}
+
+' Caminos de comunicación (Los cables)
+' El cliente habla con el Management Server desde fuera
+client -- mgt : "HTTPS (Puerto 8080/8443)"
+
+' Comunicaciones internas
+mgt -- db : "TCP (3306)"
+mgt -- host : "TCP/SSH (8250)"
+host -- primary : "iSCSI / NFS"
+mgt -- sec : "NFS"
+
+@enduml
