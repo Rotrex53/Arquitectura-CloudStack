@@ -1,6 +1,16 @@
 @startuml
+' motor Smetana
+' !pragma layout smetana
+
 top to bottom direction
 skinparam packageStyle rectangle
+
+' separaciones 
+skinparam nodesep 200
+skinparam ranksep 200
+skinparam padding 30
+skinparam linetype ortho
+
 ' ========== Componentes ===========
 component "User"
 
@@ -29,22 +39,45 @@ package "capa de integración" as integration {
 ' ----- Datos -----
 package "capa de datos" as data {
   component "framework"
+  component "cloud-utils" as utils
 }
+' ========= ORGANIZACIÓN FORZADA ==========
+User -[hidden]down-> presentation
+presentation -[hidden]down-> apiLayer
+apiLayer -[hidden]down-> businessLayer
+businessLayer -[hidden]down-> integration
+integration -[hidden]down-> data
 
 ' ========= Relaciones en capas ==========
 ' user
-User ..> UI: <<use>>
+User .down.> UI: <<use>>
 
-' ui 
-UI ..> api: <<import>>
+' ui
+UI .down.> api: <<import>>
+
+' api 
+api .down.> utils: <<import>>
+api .down.> framework: <<import>>
 
 ' server 
-server ..> api: <<import>>
-server ..> core: <<import>>
-server ..> engine: <<import>>
-server ..> Plugins: <<import>>
-server ..> framework: <<import>>
+server .up.> api: <<import>>
+server .left.> core: <<import>>
+server .right.> engine: <<import>>
+server <.down.> Plugins: <<import>>
+server .down.> framework: <<import>>
+server .down.> utils: <<import>>
 
-' engine 
-engine ..> framework: <<import>>
+' core
+core .up.> api: <<import>>
+core .right.> engine: <<import>>
+core .down.> framework: <<import>>
+
+' utils
+utils .left.> framework: <<import>>
+
+' plugins
+Plugins .up.> api: <<import>>
+Plugins .down.> utils: <<import>>
+Plugins .down.> framework: <<import>>
+Plugins .up.> engine: <<import>>
 @enduml
