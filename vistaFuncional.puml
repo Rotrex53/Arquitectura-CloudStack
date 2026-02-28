@@ -1,1 +1,65 @@
+@startuml ComponentesCloudStack_Arquitectura_Pro
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam actorStyle human
 
+skinparam interface {
+    backgroundColor White
+    borderColor Black
+}
+
+package "Capa de Acceso y Control" {
+    component [Interfaz Web (Dashboard)] as UI
+    interface "REST/Query" as REST
+    component [CloudStack API] as API
+    
+    UI -down-> API : "Consumo de servicios"
+    REST -down- API
+}
+
+package "Núcleo del Sistema" {
+    component [Servidor de administración] as MS <<brain>>
+    database "MySQL Database" as DB
+    component [Plugins de Extensión] as Plugins <<Modular>>
+    
+    MS -left-> DB : "Gestión de estado"
+    MS -right-> Plugins : "Soporte (Storage/Red)"
+}
+
+package "Recursos de Almacenamiento" {
+    storage "Primary Storage\n(LUNs, NFS, Local)" as PStorage
+    storage "Secondary Storage\n(NFS, S3, Swift)" as SStorage
+}
+
+package "Capa de Virtualización y Recursos" {
+    node "Host / Hipervisor\n(KVM, XenServer, VMware)" as Host {
+        component [Agentes] as Agentes
+    }
+    
+    package "System VMs" {
+        component [Router virtual (VR)] as VR
+        component [Secondary Storage VM (SSVM)] as SSVM
+        component [Console Proxy VM] as CPVM
+    }
+}
+
+API --down-- MS : "Orquestación central"
+
+MS ..down..> Agentes : "Comandos de gestión"
+MS ..down..> [System VMs] : "Gestión automática"
+
+SSVM -down-> SStorage : "Gestión de Plantillas/ISOs"
+Agentes -up-> PStorage : "Lectura/Escritura de Discos VM"
+
+note left of UI
+  Punto de entrada para 
+  Usuarios y Admins.
+endnote
+
+note right of SSVM
+  Mueve datos entre 
+  almacenamiento secundario
+  y los hosts físicos.
+endnote
+
+@enduml
