@@ -1,1 +1,42 @@
+@startuml Componentes
+left to right direction
+skinparam componentStyle uml2
+skinparam nodesep 60
+skinparam ranksep 80
 
+title Diagrama de Componentes Apache CloudStack
+
+component "Servidor de Administración" as MS
+
+component "CloudStack API" as API
+component "Plugins de Extensión" as PLUG
+
+component "Agentes" as AG
+
+package "Máquinas Virtuales del Sistema" {
+    component "Router Virtual (VR)" as VR
+    component "Almacenamiento Secundario (SSVM)" as SSVM
+    component "Console Proxy VM" as CPVM
+}
+
+interface "API Control\nInterface" as iAPI
+interface "Hypervisor\nManagement" as iAG
+interface "System Service\nInterface" as iSVM
+interface "Plugin\nSPI" as iPLUG
+
+
+API -- iAPI
+iAPI )-- MS
+
+PLUG -- iPLUG
+iPLUG )-- MS
+
+MS --( iAG
+iAG -- AG
+
+MS --( iSVM
+iSVM -- VR
+iSVM -- SSVM
+iSVM -- CPVM
+
+@enduml
