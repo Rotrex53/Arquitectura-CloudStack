@@ -19,10 +19,10 @@ package "Máquinas Virtuales del Sistema" {
     component "Console Proxy VM" as CPVM
 }
 
-interface "API Control\nInterface" as iAPI
-interface "Hypervisor\nManagement" as iAG
-interface "System Service\nInterface" as iSVM
-interface "Plugin\nSPI" as iPLUG
+interface "ApiServer" as iAPI
+interface "HypervisorResource" as iAG
+interface "VirtualMachine\nManager" as iSVM
+interface "PluggableService" as iPLUG
 
 
 API -- iAPI
